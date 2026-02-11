@@ -11,12 +11,13 @@ let growUPGRatio = 0.25
 let moveAmount = 4;
 let speedUPGAmount = 2
 let speedUPGRatio = 0.25
+let radiusUPGAmount = 5
 
 //game variables
 let border = 6
 let maxDrift = 1
 let minDrift = -1
-let allRadius = 25
+let allRadius = 20
 
 //rectangle setup
 let rectX = mapSizeX / 2;
@@ -47,24 +48,31 @@ function setup() {
   if (localStorage.getItem("rectSize") !== null) {
     rectSize = Number(localStorage.getItem("rectSize"));
   }
+  if (localStorage.getItem("radius") !== null) {
+    allRadius = Number(localStorage.getItem("radius"));
+  }
   
   mapSizeY = displayHeight - 20
   mapSizeX = displayWidth - 20
   createCanvas(mapSizeX, mapSizeY); 
   let button1 = createButton('1 Win | UPG Speed');
-  button1.position(10, 115);
+  button1.position(10, 140);
   button1.mousePressed(speedUPG);
   
   let button2 = createButton('1 Win | UPG Size');
-  button2.position(10, 145);
+  button2.position(10, 175);
   button2.mousePressed(sizeUPG);
   
+  let button5 = createButton('1 Win | UPG Radius');
+  button5.position(10, 205);
+  button5.mousePressed(radiusUPG);
+  
   let button3 = createButton('SAVE PROGRESS');
-  button3.position(10, 175);
+  button3.position(10, 235);
   button3.mousePressed(saveProgress);
   
   let button4 = createButton('CLEAR PROGRESS');
-  button4.position(10, 205);
+  button4.position(10, 265);
   button4.mousePressed(unSaveProgress);
   
   rectX = mapSizeX / 2;
@@ -217,11 +225,19 @@ function sizeUPG() {
   }
 }
 
+function radiusUPG() {
+  if (wins >= 1) {
+    allRadius += radiusUPGAmount
+    wins -= 1
+  }
+}
+
 function saveProgress() {
   localStorage.setItem("wins", wins);
   localStorage.setItem("rectSize", rectSize);
   localStorage.setItem("moveAmount", moveAmount);
   localStorage.setItem("growSize", originGrowSize);
+  localStorage.setItem("radius", allRadius);
 }
 
 function unSaveProgress() {
@@ -234,6 +250,7 @@ function texts() {
   text("Wins " + str(round(wins)) , 10, 50)
   text("Grow Amount " + str(round(growSize, 2)) , 10, 75)
   text("Speed " + str(round(moveAmount)) , 10, 100)
+  text("Ball Size " + str(round(allRadius)) , 10, 125)
 }
 
 function draw() {
@@ -243,7 +260,7 @@ function draw() {
   moveBack(i)
   fill("green")
   circleSizeSetter(i)
-  fill("red")
+  fill("rgb(218,24,24)")
   rectSizeSetter(i)
   eat(i)
   circleRandomMove(i)
