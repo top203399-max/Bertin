@@ -3,7 +3,7 @@ let mapSizeX;
 
 //stats
 let wins = 0
-let originGrowSize = 50
+let originGrowSize = 200
 let originUPGAmount = 1
 let growSize = 4;
 let growUPGAmount = 5
@@ -30,7 +30,7 @@ let rectRangeY2;
 //circle setup
 circleSpreadCoverage = 300;
 circleSpread = 0;
-circleAmount = 300
+circleAmount = 400
 circlesSetup = []
 
 function setup() {
@@ -59,6 +59,14 @@ function setup() {
   button2.position(10, 145);
   button2.mousePressed(sizeUPG);
   
+  let button3 = createButton('SAVE PROGRESS');
+  button3.position(10, 175);
+  button3.mousePressed(saveProgress);
+  
+  let button4 = createButton('CLEAR PROGRESS');
+  button4.position(10, 205);
+  button4.mousePressed(unSaveProgress);
+  
   rectX = mapSizeX / 2;
   rectY = mapSizeY / 1.2;
   
@@ -84,7 +92,7 @@ function setup() {
   circleSpread = circleSpreadCoverage / circleAmount
   
   for (let i = 0; i < circleAmount; i++) {
-    append(circlesSetup, [i, (mapSizeX/ 2) + ((-1) ** i * (circleSpread * i)), (mapSizeY / 2), 0, 0, 0, 0, 0, 0])
+    append(circlesSetup, [i, (mapSizeX/ 2) + ((-1) ** i * (circleSpread * i)), (mapSizeY / 2), 0, 0, 0, 0, random(minDrift, maxDrift), random(minDrift, maxDrift)])
   }
 }
 
@@ -216,6 +224,10 @@ function saveProgress() {
   localStorage.setItem("growSize", originGrowSize);
 }
 
+function unSaveProgress() {
+  localStorage.clear()
+}
+
 function texts() {
   textSize(15)
   text("Size " + str(round(rectSize)) , 10, 25)
@@ -241,5 +253,4 @@ function draw() {
   texts() 
   winCounter()
   move()
-  saveProgress()
 }
