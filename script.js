@@ -2,22 +2,38 @@ let mapSizeY;
 let mapSizeX;
 
 //stats
-let wins = 0
-let originGrowSize = 200
-let originUPGAmount = 1
+let startOriginGrowSize = 75;
+let startGrowSize = 4;
+let startMoveAmount = 4;
+let startAllRadius = 20;
+
+let prestige = 0;
+let wins = 0;
+let originGrowSize = 75;
+let originUPGAmount = 1;
 let growSize = 4;
-let growUPGAmount = 5
-let growUPGRatio = 0.25
+let growUPGAmount = 5;
+let growUPGRatio = 0.25;
 let moveAmount = 4;
-let speedUPGAmount = 2
-let speedUPGRatio = 0.25
-let radiusUPGAmount = 5
+let speedUPGAmount = 2;
+let speedUPGRatio = 0.25;
+let radiusUPGAmount = 20;
 
 //game variables
-let border = 6
-let maxDrift = 1
-let minDrift = -1
-let allRadius = 20
+let border = 6;
+let maxDrift = 1;
+let minDrift = -1;
+let allRadius = 20;
+
+let buttonSeperation = 30;
+let buttonSpaceBase = 165;
+let textSeperation = 25;
+let textSpaceBase = 25;
+
+let radiusVariety = 10;
+let goldRarity = 50;
+let goldGainMuilti = 5;
+let goldSpeedMuilti = 5;
 
 //rectangle setup
 let rectX = mapSizeX / 2;
@@ -31,8 +47,8 @@ let rectRangeY2;
 //circle setup
 circleSpreadCoverage = 300;
 circleSpread = 0;
-circleAmount = 400
-circlesSetup = []
+circleAmount = 400;
+circlesSetup = [];
 
 function setup() {
   //localStorage.clear()
@@ -51,33 +67,40 @@ function setup() {
   if (localStorage.getItem("radius") !== null) {
     allRadius = Number(localStorage.getItem("radius"));
   }
-  
+  if (localStorage.getItem("prestige") !== null) {
+    prestige = Number(localStorage.getItem("prestige"));
+  }
+
   mapSizeY = displayHeight - 20
   mapSizeX = displayWidth - 20
-  createCanvas(mapSizeX, mapSizeY); 
-  let button1 = createButton('1 Win | UPG Speed');
-  button1.position(10, 140);
+  createCanvas(mapSizeX, mapSizeY);
+  let button1 = createButton("1 Win | UPG Speed");
+  button1.position(10, buttonSpaceBase);
   button1.mousePressed(speedUPG);
-  
-  let button2 = createButton('1 Win | UPG Size');
-  button2.position(10, 175);
+
+  let button2 = createButton("1 Win | UPG Grow Size");
+  button2.position(10, buttonSpaceBase + buttonSeperation);
   button2.mousePressed(sizeUPG);
-  
-  let button5 = createButton('1 Win | UPG Radius');
-  button5.position(10, 205);
+
+  let button5 = createButton("1 Win | UPG Ball Size");
+  button5.position(10, buttonSpaceBase + buttonSeperation * 2);
   button5.mousePressed(radiusUPG);
-  
-  let button3 = createButton('SAVE PROGRESS');
-  button3.position(10, 235);
+
+  let button6 = createButton("100 Win | Prestige");
+  button6.position(10, buttonSpaceBase + buttonSeperation * 3);
+  button6.mousePressed(prestigeUPG);
+
+  let button3 = createButton("SAVE PROGRESS");
+  button3.position(10, buttonSpaceBase + buttonSeperation * 4);
   button3.mousePressed(saveProgress);
-  
-  let button4 = createButton('CLEAR PROGRESS');
-  button4.position(10, 265);
+
+  let button4 = createButton("CLEAR PROGRESS");
+  button4.position(10, buttonSpaceBase + buttonSeperation * 5);
   button4.mousePressed(unSaveProgress);
-  
-  rectX = mapSizeX / 2;
-  rectY = mapSizeY / 1.2;
-  
+
+  rectX = mapSizeX / 2 - rectSize / 2;
+  rectY = mapSizeY / 1.2 - rectSize / 2;
+
   //adds:
   //0.circle Number
   //1.CircleX
@@ -88,86 +111,128 @@ function setup() {
   //6.Bottom Y Range
   //7.DriftX
   //8.DriftY
-  
-  circleSpreadCoverage = mapSizeX / 2.5
-  
-  originUPGAmount = originGrowSize * growUPGRatio
-  growSize = originGrowSize / circleAmount
-  growUPGAmount = growSize * growUPGRatio  
-  
-  speedUPGAmount = moveAmount * speedUPGRatio
-  
-  circleSpread = circleSpreadCoverage / circleAmount
-  
+  //9.Radius
+
+  circleSpreadCoverage = mapSizeX / 2.5;
+
+  originUPGAmount = originGrowSize * growUPGRatio;
+  growSize = originGrowSize / circleAmount;
+  growUPGAmount = growSize * growUPGRatio;
+
+  speedUPGAmount = moveAmount * speedUPGRatio;
+
+  circleSpread = circleSpreadCoverage / circleAmount;
+
   for (let i = 0; i < circleAmount; i++) {
-    append(circlesSetup, [i, (mapSizeX/ 2) + ((-1) ** i * (circleSpread * i)), (mapSizeY / 2), 0, 0, 0, 0, random(minDrift, maxDrift), random(minDrift, maxDrift)])
+    append(circlesSetup, [
+      i,
+      mapSizeX / 2 + (-1) ** i * (circleSpread * i),
+      mapSizeY / 2,
+      0,
+      0,
+      0,
+      0,
+      random(minDrift, maxDrift),
+      random(minDrift, maxDrift),
+      random(allRadius - allRadius / radiusVariety, allRadius + allRadius / radiusVariety)
+    ]);
   }
 }
 
 function move() {
-  if (keyIsDown(UP_ARROW) === true) {
+  if (keyIsDown(UP_ARROW) === true ) {
     if (rectY > 0 + border) {
       rectY -= moveAmount;
-    } 
-    else {
+    } else {
       for (let Number = 0; Number < circleAmount; Number++) {
         circlesSetup[Number][2] += moveAmount;
-    }
+      }
     }
   }
   if (keyIsDown(DOWN_ARROW) === true) {
     if (rectY <= mapSizeY - rectSize - border) {
       rectY += moveAmount;
-    } 
-    else {
+    } else {
       for (let Number = 0; Number < circleAmount; Number++) {
         circlesSetup[Number][2] -= moveAmount;
-    }
+      }
     }
   }
   if (keyIsDown(LEFT_ARROW) === true) {
     if (rectX > 0 + border) {
       rectX -= moveAmount;
-    } 
-    else {
+    } else {
       for (let Number = 0; Number < circleAmount; Number++) {
         circlesSetup[Number][1] += moveAmount;
-    }
+      }
     }
   }
   if (keyIsDown(RIGHT_ARROW) === true) {
     if (rectX <= mapSizeX - rectSize - border) {
       rectX += moveAmount;
-    } 
-    else {
+    } else {
       for (let Number = 0; Number < circleAmount; Number++) {
         circlesSetup[Number][1] -= moveAmount;
-    }
+      }
     }
   }
 }
 
 function circleRandomMove(Number) {
-  circlesSetup[Number][1] += circlesSetup[Number][7]
-  circlesSetup[Number][2] += circlesSetup[Number][8]
+  if (prestige === 1 && (Number % goldRarity === 0)) {
+    circlesSetup[Number][1] += circlesSetup[Number][7] * goldSpeedMuilti;
+    circlesSetup[Number][2] += circlesSetup[Number][8] * goldSpeedMuilti;
+  }
+  else {
+    circlesSetup[Number][1] += circlesSetup[Number][7];
+    circlesSetup[Number][2] += circlesSetup[Number][8];
+  }
 }
 
 function eat(Number) {
-  if (rectRangeX1 < circlesSetup[Number][4] && rectRangeX2 > circlesSetup[Number][3]) {
-    if (rectRangeY1 < circlesSetup[Number][6] && rectRangeY2 > circlesSetup[Number][5]) {
-      moveCircle(Number)
+  if (
+    rectRangeX1 < circlesSetup[Number][4] &&
+    rectRangeX2 > circlesSetup[Number][3]
+  ) {
+    if (
+      rectRangeY1 < circlesSetup[Number][6] &&
+      rectRangeY2 > circlesSetup[Number][5]
+    ) {
+      moveCircle(Number);
     }
   }
 }
 
 function moveCircle(Number) {
-  rectSize += growSize;
-  rectX -= growSize / 2
-  rectY -= growSize / 2
+  let muilti = 1
+  if (prestige === 1 && Number % goldRarity === 0) {
+    rectSize += growSize * goldGainMuilti;
+    muilti = goldGainMuilti
+  }
+  else {
+    rectSize += growSize;
+  }
+  
+  rectX -= growSize / 2;
+  rectY -= growSize / 2;
   circlesSetup[Number][1] = random(0, mapSizeX);
   circlesSetup[Number][2] = random(0, mapSizeY);
-  circlesSetup[Number][7] = random(minDrift, maxDrift)
-  circlesSetup[Number][8] = random(minDrift, maxDrift)
+  circlesSetup[Number][7] = random(minDrift, maxDrift);
+  circlesSetup[Number][8] = random(minDrift, maxDrift);
+  
+  //border cutoff
+  if (rectY < 0 + border) {
+    rectY += growSize * muilti / 2
+  }
+  if (rectRangeY2 > mapSizeY  - border) {
+    rectY -= growSize * muilti / 2
+  }
+  if (rectX < 0 + border) {
+    rectX += growSize * muilti / 2
+  }
+  if (rectRangeX2 > mapSizeX  - border) {
+    rectX -= growSize * muilti / 2
+  }
 }
 
 function moveBack(Number) {
@@ -183,8 +248,15 @@ function moveBack(Number) {
 }
 
 function circleSizeSetter(Number) {
-  circle(circlesSetup[Number][1], circlesSetup[Number][2], allRadius);
+  if (prestige === 1 && Number % goldRarity === 0) {
+    fill("yellow")
+  }
+  else {
+    fill("green")
+  }
   
+  circle(circlesSetup[Number][1], circlesSetup[Number][2], circlesSetup[Number][9]);
+
   circlesSetup[Number][3] = circlesSetup[Number][1] - allRadius / 2;
   circlesSetup[Number][4] = circlesSetup[Number][1] + allRadius / 2;
   circlesSetup[Number][5] = circlesSetup[Number][2] - allRadius / 2;
@@ -201,34 +273,48 @@ function rectSizeSetter() {
 
 function winCounter() {
   if (rectSize > mapSizeX * 2) {
-    erase()
-    noErase()
-    rectSize = 25
-    wins += 1
-    rectX = mapSizeX / 2
-    rectY = mapSizeY / 1.2
+    erase();
+    noErase();
+    rectSize = 25;
+    wins += 1;
+    rectX = mapSizeX / 2;
+    rectY = mapSizeY / 1.2;
   }
 }
 
 function speedUPG() {
   if (wins >= 1) {
-    moveAmount += speedUPGAmount
-    wins -= 1
+    moveAmount += speedUPGAmount;
+    wins -= 1;
   }
 }
 
 function sizeUPG() {
   if (wins >= 1) {
-    growSize += growUPGAmount
-    originGrowSize += originUPGAmount
-    wins -= 1
+    growSize += growUPGAmount;
+    originGrowSize += originUPGAmount;
+    wins -= 1;
   }
 }
 
 function radiusUPG() {
   if (wins >= 1) {
-    allRadius += radiusUPGAmount
-    wins -= 1
+    allRadius += radiusUPGAmount;
+    wins -= 1;
+    for (let Number = 0; Number < circleAmount; Number++) {
+        circlesSetup[Number][9] = random(allRadius - allRadius / radiusVariety, allRadius + allRadius / radiusVariety)
+    }
+  }
+}
+
+function prestigeUPG() {
+  if (wins >= 100) {
+    prestige += 1;
+    wins = 0;
+    originGrowSize = startOriginGrowSize
+    growSize = originGrowSize / circleAmount;
+    allRadius = startAllRadius
+    moveAmount = startMoveAmount
   }
 }
 
@@ -238,36 +324,38 @@ function saveProgress() {
   localStorage.setItem("moveAmount", moveAmount);
   localStorage.setItem("growSize", originGrowSize);
   localStorage.setItem("radius", allRadius);
+  localStorage.setItem("prestige", prestige);
 }
 
 function unSaveProgress() {
-  localStorage.clear()
+  localStorage.clear();
 }
 
 function texts() {
-  textSize(15)
-  text("Size " + str(round(rectSize)) , 10, 25)
-  text("Wins " + str(round(wins)) , 10, 50)
-  text("Grow Amount " + str(round(growSize, 2)) , 10, 75)
-  text("Speed " + str(round(moveAmount)) , 10, 100)
-  text("Ball Size " + str(round(allRadius)) , 10, 125)
+  textSize(15);
+  text("Size " + str(round(rectSize)), 10, textSpaceBase);
+  text("Grow Amount " + str(round(growSize, 2)), 10, textSpaceBase + textSeperation * 1);
+  text("Speed " + str(round(moveAmount)), 10, textSpaceBase + textSeperation * 2);
+  text("Ball Size " + str(round(allRadius)), 10, textSpaceBase + textSeperation * 3);
+  text("Wins " + str(round(wins)), 10, textSpaceBase + textSeperation * 4);
+  text("Prestige " + str(round(prestige)), 10, textSpaceBase + textSeperation * 5);
 }
 
 function draw() {
   background(220);
-  print(circleAmount)
   for (let i = 0; i < circleAmount; i++) {
-  moveBack(i)
-  fill("green")
-  circleSizeSetter(i)
-  fill("rgb(218,24,24)")
-  rectSizeSetter(i)
-  eat(i)
-  circleRandomMove(i)
+    moveBack(i);
+    
+
+    circleSizeSetter(i);
+    fill("rgb(218,24,24)");
+    rectSizeSetter(i);
+    eat(i);
+    circleRandomMove(i);
   }
-  
-  fill("black")
-  texts() 
-  winCounter()
-  move()
+
+  fill("black");
+  texts();
+  winCounter();
+  move();
 }
