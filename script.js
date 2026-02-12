@@ -332,6 +332,7 @@ function unSaveProgress() {
 }
 
 function texts() {
+  fill("white")
   textSize(15);
   text("Size " + str(round(rectSize)), 10, textSpaceBase);
   text("Grow Amount " + str(round(growSize, 2)), 10, textSpaceBase + textSeperation * 1);
@@ -342,7 +343,7 @@ function texts() {
 }
 
 function draw() {
-  background(220);
+  background("black");
   for (let i = 0; i < circleAmount; i++) {
     moveBack(i);
     
