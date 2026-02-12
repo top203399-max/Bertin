@@ -2,14 +2,14 @@ let mapSizeY;
 let mapSizeX;
 
 //stats
-let startOriginGrowSize = 75;
+let startOriginGrowSize = 100;
 let startGrowSize = 4;
 let startMoveAmount = 4;
 let startAllRadius = 20;
 
 let prestige = 0;
 let wins = 0;
-let originGrowSize = 75;
+let originGrowSize = 100;
 let originUPGAmount = 1;
 let growSize = 4;
 let growUPGAmount = 5;
